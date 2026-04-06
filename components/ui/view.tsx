@@ -1,4 +1,6 @@
-import { View as RNView, type ViewProps, SafeAreaView as RNSafeAreaView } from 'react-native';
+import { View as RNView, type ViewProps } from 'react-native';
+import { SafeAreaView as RNSafeAreaView } from 'react-native-safe-area-context';
+import { withUniwind } from 'uniwind';
 import React from 'react';
 
 type Variant = 'default' | 'card' | 'input' | 'centered';
@@ -24,9 +26,11 @@ export function View({ variant = 'default', className = '', ...props }: CustomVi
   );
 }
 
-export function SafeAreaView({ className = '', ...props }: ViewProps & { className?: string }) {
+const StyledSafeAreaView = withUniwind(RNSafeAreaView);
+
+export function SafeAreaView({ className = '', ...props }: any) {
   return (
-    <RNSafeAreaView 
+    <StyledSafeAreaView 
       className={`flex-1 bg-background ${className}`} 
       {...props} 
     />

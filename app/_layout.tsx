@@ -26,10 +26,14 @@ function RootContent() {
   );
 }
 
+import { SafeAreaProvider } from 'react-native-safe-area-context';
+
 export default function RootLayout() {
   return (
     <ThemeProvider>
-      <RootContent />
+      <SafeAreaProvider>
+        <RootContent />
+      </SafeAreaProvider>
     </ThemeProvider>
   );
 }

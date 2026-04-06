@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Pressable, Modal, TextInput, ScrollView, Dimensions, Platform } from 'react-native';
 import { View, Text } from '@/components';
 import { useNoteStore } from '@/stores/note-store';
@@ -16,13 +16,15 @@ interface SidebarProps {
 }
 
 export function Sidebar({ onNoteSelect, onNewNote, visible = true, onClose }: SidebarProps) {
-  const { getFilteredNotes, setActiveNote, searchQuery, setSearchQuery, addNote } = useNoteStore();
+  const { notes, isInitialized, setActiveNote, searchQuery, setSearchQuery, addNote } = useNoteStore();
   const { actualTheme } = useTheme();
   const isDark = actualTheme === 'dark';
   const [isCreating, setIsCreating] = useState(false);
   const [newTitle, setNewTitle] = useState('');
 
-  const filteredNotes = getFilteredNotes();
+  const filteredNotes = searchQuery 
+    ? notes.filter(n => n.title.toLowerCase().includes(searchQuery.toLowerCase()) || n.content.toLowerCase().includes(searchQuery.toLowerCase()))
+    : notes;
 
   const handleCreateNote = async () => {
     if (newTitle.trim()) {
@@ -34,11 +36,16 @@ export function Sidebar({ onNoteSelect, onNewNote, visible = true, onClose }: Si
   };
 
   const handleSelectNote = (id: string) => {
-    setActiveNote(id);
+    // Notify parens to close the sidebar first
     onNoteSelect?.(id);
     if (!isWeb) {
       onClose?.();
     }
+    
+    // Defer the state update to allow UI/Modal to animate smoothly
+    setTimeout(() => {
+      setActiveNote(id);
+    }, 10);
   };
 
   const content = (
@@ -78,7 +85,7 @@ export function Sidebar({ onNoteSelect, onNewNote, visible = true, onClose }: Si
         </View>
       </View>
 
-      <ScrollView className="flex-1">
+      <ScrollView className="flex-1" keyboardShouldPersistTaps="handled">
         {filteredNotes.length === 0 ? (
           <View className="p-8 items-center">
             <Ionicons name="document-outline" size={48} color={isDark ? '#4b5563' : '#94a3b8'} />
@@ -100,7 +107,7 @@ export function Sidebar({ onNoteSelect, onNewNote, visible = true, onClose }: Si
         )}
       </ScrollView>
 
-      <Modal visible={isCreating} transparent animationType="fade">
+      <Modal visible={isCreating} transparent animationType="fade" onRequestClose={() => setIsCreating(false)}>
         <Pressable className="flex-1 bg-black/50 justify-center items-center" onPress={() => setIsCreating(false)}>
           <Pressable className="w-80 bg-card rounded-2xl p-6 border border-border" onPress={(e) => e.stopPropagation()}>
             <Text variant="subtitle" className="mb-4">New Note</Text>
@@ -141,11 +148,11 @@ export function Sidebar({ onNoteSelect, onNewNote, visible = true, onClose }: Si
     );
   }
 
+  if (!visible) return null;
+
   return (
-    <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
-      <View className="flex-1">
-        {content}
-      </View>
-    </Modal>
+    <View className="flex-1 bg-background" style={{ paddingTop: 40 }}>
+      {content}
+    </View>
   );
 }

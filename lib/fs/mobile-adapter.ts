@@ -11,7 +11,7 @@ function noteFile(id: string): File {
   return new File(getNotesDir(), `${id}.json`);
 }
 
-function ensureDir() {
+function ensureDirSync(): void {
   const dir = getNotesDir();
   if (!dir.exists) {
     dir.create({ intermediates: true, idempotent: true });
@@ -20,11 +20,11 @@ function ensureDir() {
 
 export const mobileAdapter: FileSystemAdapter = {
   async init() {
-    ensureDir();
+    ensureDirSync();
   },
 
   async listNotes() {
-    ensureDir();
+    ensureDirSync();
     const entries = getNotesDir().list();
     const notes: NoteFile[] = [];
     for (const entry of entries) {
@@ -48,9 +48,9 @@ export const mobileAdapter: FileSystemAdapter = {
   },
 
   async saveNote(note: NoteFile) {
-    ensureDir();
+    ensureDirSync();
     const file = noteFile(note.id);
-    file.write(JSON.stringify(note), { encoding: 'utf8', append: false });
+    file.write(JSON.stringify(note));
   },
 
   async deleteNote(id: string) {

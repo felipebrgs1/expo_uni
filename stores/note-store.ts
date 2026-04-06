@@ -95,21 +95,29 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
 
   initFromFileSystem: async () => {
     try {
+      console.log('[NoteStore] initFromFileSystem starting...');
       await adapter.init();
+      console.log('[NoteStore] adapter.init done');
       const files = await adapter.listNotes();
+      console.log('[NoteStore] listNotes done, count:', files.length);
+      
       let notes: Note[];
       if (files.length > 0) {
         notes = files.map(noteFileToNote);
       } else {
+        console.log('[NoteStore] No files found, creating mock notes...');
         for (const mock of MOCK_NOTES) {
           await adapter.saveNote(noteToNoteFile(mock));
         }
         notes = MOCK_NOTES;
       }
+      
       const graphData = buildGraph(notes);
+      console.log('[NoteStore] About to set state with', notes.length, 'notes');
       set({ notes, graphData, isInitialized: true });
+      console.log('[NoteStore] State set complete');
     } catch (e: unknown) {
-      console.error('Failed to init from file system:', e);
+      console.error('[NoteStore] initFromFileSystem error:', e);
       const graphData = buildGraph(MOCK_NOTES);
       set({ notes: MOCK_NOTES, graphData, isInitialized: true });
     }
@@ -158,6 +166,7 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
   },
 
   setActiveNote: (id: string | null) => {
+    console.log('[NoteStore] setActiveNote called with id:', id);
     set({ activeNoteId: id });
   },
 
@@ -167,7 +176,9 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
 
   getActiveNote: () => {
     const { notes, activeNoteId } = get();
-    return notes.find((n) => n.id === activeNoteId);
+    const note = notes.find((n) => n.id === activeNoteId);
+    console.log('[NoteStore] getActiveNote, activeNoteId:', activeNoteId, 'found:', note?.title);
+    return note;
   },
 
   getFilteredNotes: () => {
