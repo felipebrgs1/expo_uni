@@ -24,9 +24,9 @@ export function Sidebar({ onNoteSelect, onNewNote, visible = true, onClose }: Si
 
   const filteredNotes = getFilteredNotes();
 
-  const handleCreateNote = () => {
+  const handleCreateNote = async () => {
     if (newTitle.trim()) {
-      addNote(newTitle.trim());
+      await addNote(newTitle.trim());
       setNewTitle('');
       setIsCreating(false);
       onNewNote?.();

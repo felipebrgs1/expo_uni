@@ -19,9 +19,9 @@ export default function HomeScreen() {
 
   const activeNote = getActiveNote();
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (activeNote) {
-      updateNote(activeNote.id, editContent);
+      await updateNote(activeNote.id, editContent);
       setIsEditing(false);
     }
   };
