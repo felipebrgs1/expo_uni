@@ -3,6 +3,7 @@ import { Tabs } from 'expo-router';
 import { useTheme } from '@/components/theme-provider';
 import { Ionicons } from '@expo/vector-icons';
 import { Platform, Dimensions } from 'react-native';
+import { useNoteStore } from '@/stores/note-store';
 
 const { width } = Dimensions.get('window');
 const isWeb = Platform.OS === 'web' && width >= 768;
@@ -10,6 +11,11 @@ const isWeb = Platform.OS === 'web' && width >= 768;
 export default function TabLayout() {
   const { actualTheme } = useTheme();
   const isDark = actualTheme === 'dark';
+  const activeNoteId = useNoteStore((s) => s.activeNoteId);
+
+  // We hide the tabs on Desktop Web (since it has a permanent generic sidebar layout),
+  // AND we hide the tabs on Mobile when the user opens a Note.
+  const shouldHideTabs = isWeb || !!activeNoteId;
 
   return (
     <Tabs
@@ -18,7 +24,7 @@ export default function TabLayout() {
         tabBarStyle: {
           backgroundColor: isDark ? '#000000' : '#ffffff',
           borderTopColor: isDark ? '#374151' : '#e5e7eb',
-          display: isWeb ? 'none' : 'flex', // Hide tabs on Desktop Web since we have sidebar
+          display: shouldHideTabs ? 'none' : 'flex',
         },
         tabBarActiveTintColor: isDark ? '#38bdf8' : '#0ea5e9',
         tabBarInactiveTintColor: isDark ? '#9ca3af' : '#64748b',
