@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
 import React from 'react';
+import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/components/theme-provider';
 
 export default function TabLayout() {
@@ -25,6 +26,9 @@ export default function TabLayout() {
         name="index"
         options={{
           title: 'Home',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="home" size={size} color={color} />
+          ),
           tabBarLabelStyle: { fontWeight: '700' },
         }}
       />
@@ -32,6 +36,9 @@ export default function TabLayout() {
         name="explore"
         options={{
           title: 'Settings',
+          tabBarIcon: ({ color, size }) => (
+            <Ionicons name="settings" size={size} color={color} />
+          ),
           tabBarLabelStyle: { fontWeight: '700' },
         }}
       />

@@ -9,11 +9,11 @@ interface CustomTextProps extends TextProps {
 }
 
 const variants: Record<Variant, string> = {
-  default: 'text-base text-foreground',
-  title: 'text-3xl font-black text-foreground',
-  subtitle: 'text-xl font-bold text-foreground',
-  caption: 'text-sm text-muted-foreground',
-  bold: 'text-base font-bold text-foreground',
+  default: 'text-sm text-foreground',
+  title: 'text-2xl font-black text-foreground',
+  subtitle: 'text-lg font-bold text-foreground',
+  caption: 'text-xs text-muted-foreground',
+  bold: 'text-sm font-bold text-foreground',
 };
 
 export function Text({ variant = 'default', className = '', ...props }: CustomTextProps) {

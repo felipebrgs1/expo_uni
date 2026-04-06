@@ -1,9 +1,16 @@
-import { Text, View, SafeAreaView, Button } from '@/components';
+import { Text, View, SafeAreaView } from '@/components';
 import { useTheme } from '@/components/theme-provider';
-import { Alert } from 'react-native';
+import { Pressable, Alert } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function SettingsScreen() {
   const { theme, setTheme } = useTheme();
+
+  const themes = [
+    { name: 'light' as const, icon: 'sunny' as const },
+    { name: 'dark' as const, icon: 'moon' as const },
+    { name: 'system' as const, icon: 'desktop' as const },
+  ];
 
   return (
     <SafeAreaView>
@@ -13,34 +20,31 @@ export default function SettingsScreen() {
         
         <View variant="card" className="mb-4">
           <Text variant="bold" className="mb-4">Appearance</Text>
-          <View className="flex-row gap-2">
-            <Button 
-              label="Light" 
-              variant={theme === 'light' ? 'primary' : 'outline'} 
-              className="flex-1"
-              onPress={() => {
-                Alert.alert('Theme', 'Setting to Light');
-                setTheme('light');
-              }}
-            />
-            <Button 
-              label="Dark" 
-              variant={theme === 'dark' ? 'primary' : 'outline'} 
-              className="flex-1"
-              onPress={() => {
-                Alert.alert('Theme', 'Setting to Dark');
-                setTheme('dark');
-              }}
-            />
-            <Button 
-              label="System" 
-              variant={theme === 'system' ? 'primary' : 'outline'} 
-              className="flex-1"
-              onPress={() => {
-                Alert.alert('Theme', 'Setting to System');
-                setTheme('system');
-              }}
-            />
+          <View className="flex-row gap-4">
+            {themes.map((t) => (
+              <Pressable
+                key={t.name}
+                onPress={() => setTheme(t.name)}
+                className={`flex-1 items-center justify-center py-4 rounded-2xl border-2 ${
+                  theme === t.name
+                    ? 'bg-primary border-primary'
+                    : 'bg-transparent border-border'
+                }`}
+              >
+                <Ionicons
+                  name={t.icon}
+                  size={24}
+                  color={theme === t.name ? '#f8fafc' : '#64748b'}
+                />
+                <Text
+                  className={`mt-2 capitalize ${
+                    theme === t.name ? 'text-primary-foreground' : 'text-muted-foreground'
+                  }`}
+                >
+                  {t.name}
+                </Text>
+              </Pressable>
+            ))}
           </View>
         </View>
         
