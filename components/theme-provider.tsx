@@ -17,7 +17,7 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const systemColorScheme = useColorScheme();
 
   const actualTheme: 'light' | 'dark' = theme === 'system'
-    ? (systemColorScheme || 'light')
+    ? ((systemColorScheme ?? 'light') as 'light' | 'dark')
     : theme;
 
   const setTheme = (newTheme: Theme) => {

@@ -12,6 +12,8 @@
 
 ## Critical Rules
 
+Em duvidas do uniwind, utilizar a skills uniwind
+
 ### Styling — Uniwind ONLY
 
 - Use `className` props for all styling. Never use inline `style` unless absolutely necessary for dynamic values that Uniwind cannot handle.

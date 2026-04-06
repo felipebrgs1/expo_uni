@@ -1,6 +1,6 @@
 import { Text, View, SafeAreaView } from '@/components';
 import { useTheme } from '@/components/theme-provider';
-import { Pressable, Alert } from 'react-native';
+import { Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function SettingsScreen() {
@@ -16,7 +16,7 @@ export default function SettingsScreen() {
     <SafeAreaView>
       <View className="flex-1 p-8 pt-12 bg-background">
         <Text variant="title">Settings</Text>
-        <Text variant="caption" className="mb-8">Manage your applications behavior</Text>
+        <Text variant="caption" className="mb-8">Manage your app appearance</Text>
         
         <View variant="card" className="mb-4">
           <Text variant="bold" className="mb-4">Appearance</Text>
@@ -46,10 +46,6 @@ export default function SettingsScreen() {
               </Pressable>
             ))}
           </View>
-        </View>
-        
-        <View variant="card" className="border-destructive/20 bg-destructive/10">
-          <Text className="text-destructive font-bold text-center">Sign Out</Text>
         </View>
       </View>
     </SafeAreaView>
