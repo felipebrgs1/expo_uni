@@ -1,12 +1,6 @@
 🗺️ Roadmap: App estilo Obsidian (Mobile + Web)
 
-**Progresso atual:** ✅ Setup concluído ✅ FileSystem rodando ✅ Markdown e Wikilinks funcionando ✅ UX e Modo Edição criados ✅ Layout responsivo ajustado.
-
-Fase 4: Inteligência das Notas (Parcialmente Concluída)
-
-Para o Graph View funcionar em todo seu potencial, o app precisa ler metadados detalhados.
-- [x] Indexação básica (Regex para links implementada).
-- [ ] Extração de Metadados: Melhorar o frontmatter das notas (tags, data de criação, etc) usando pacotes como `gray-matter`.
+**Progresso atual:** ✅ Setup concluído ✅ FileSystem rodando ✅ Markdown e Wikilinks funcionando ✅ UX e Modo Edição criados ✅ Layout responsivo ajustado ✅ Extração de Metadados via gray-matter funcionado.
 
 Fase 5: O Modo Grafo (Graph View) -> PRÓXIMO PASSO 🚀
 

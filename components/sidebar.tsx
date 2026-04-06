@@ -4,7 +4,7 @@ import { View, Text } from '@/components';
 import { useNoteStore } from '@/stores/note-store';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/components/theme-provider';
-
+import { useRouter } from 'expo-router';
 const { width } = Dimensions.get('window');
 const isWeb = Platform.OS === 'web' && width >= 768;
 
@@ -19,6 +19,7 @@ export function Sidebar({ onNoteSelect, onNewNote, visible = true, onClose }: Si
   const { notes, isInitialized, setActiveNote, searchQuery, setSearchQuery, addNote } = useNoteStore();
   const { actualTheme } = useTheme();
   const isDark = actualTheme === 'dark';
+  const router = useRouter();
   const [isCreating, setIsCreating] = useState(false);
   const [newTitle, setNewTitle] = useState('');
 
@@ -54,6 +55,14 @@ export function Sidebar({ onNoteSelect, onNewNote, visible = true, onClose }: Si
         <View className="flex-row items-center justify-between mb-4">
           <Text variant="title" className="text-primary">Notes</Text>
           <View className="flex-row gap-2">
+            {isWeb && (
+              <Pressable
+                onPress={() => router.push('/graph')}
+                className="w-10 h-10 rounded-xl bg-secondary items-center justify-center"
+              >
+                <Ionicons name="git-network" size={24} color={isDark ? '#fafafa' : '#09090b'} />
+              </Pressable>
+            )}
             {!isWeb && onClose && (
               <Pressable onPress={onClose} className="w-10 h-10 rounded-xl items-center justify-center">
                 <Ionicons name="close" size={24} color={isDark ? '#fafafa' : '#09090b'} />
