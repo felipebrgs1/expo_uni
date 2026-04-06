@@ -5,6 +5,7 @@ import { useNoteStore } from '@/stores/note-store';
 import { Ionicons } from '@expo/vector-icons';
 import { useTheme } from '@/components/theme-provider';
 import { Sidebar } from '@/components/sidebar';
+import { MarkdownView } from '@/lib/markdown';
 
 const { width } = Dimensions.get('window');
 const isWeb = Platform.OS === 'web' && width >= 768;
@@ -30,6 +31,16 @@ export default function HomeScreen() {
     setActiveNote(id);
     setIsEditing(false);
     setSidebarOpen(false);
+  };
+
+  const handleWikilinkPress = (title: string) => {
+    const notes = useNoteStore.getState().notes;
+    const linkedNote = notes.find(
+      (n) => n.title.toLowerCase() === title.toLowerCase()
+    );
+    if (linkedNote) {
+      setActiveNote(linkedNote.id);
+    }
   };
 
   if (!activeNote) {
@@ -128,9 +139,7 @@ export default function HomeScreen() {
             </Pressable>
           </View>
           <ScrollView className="flex-1 p-4">
-            <Text className="text-foreground text-base leading-relaxed">
-              {activeNote.content}
-            </Text>
+            <MarkdownView content={activeNote.content} onWikilinkPress={handleWikilinkPress} />
           </ScrollView>
           <View className="p-4 border-t border-border">
             <Text variant="caption">

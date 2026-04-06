@@ -7,6 +7,14 @@ import { webAdapter } from './web-adapter';
 
 const adapter: FileSystemAdapter = Platform.OS === 'web' ? webAdapter : mobileAdapter;
 
+function generateId(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
 export function useFileSystem() {
   const [notes, setNotes] = useState<NoteFile[]>([]);
   const [loading, setLoading] = useState(true);
@@ -45,7 +53,7 @@ export function useFileSystem() {
   const createNote = useCallback(async (title: string) => {
     const now = Date.now();
     const note: NoteFile = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       title,
       content: `# ${title}\n\n`,
       createdAt: now,

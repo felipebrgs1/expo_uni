@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { Platform } from 'react-native';
 import type { NoteFile } from '@/lib/fs';
 import { mobileAdapter, webAdapter } from '@/lib/fs';
+import { buildGraph, type GraphData, type GraphNode, type GraphEdge } from '@/lib/graph';
 
 const adapter = Platform.OS === 'web' ? webAdapter : mobileAdapter;
 
@@ -18,6 +19,7 @@ interface NoteStore {
   activeNoteId: string | null;
   searchQuery: string;
   isInitialized: boolean;
+  graphData: GraphData;
   initFromFileSystem: () => Promise<void>;
   addNote: (title: string) => Promise<void>;
   updateNote: (id: string, content: string) => Promise<void>;
@@ -26,6 +28,8 @@ interface NoteStore {
   setSearchQuery: (query: string) => void;
   getActiveNote: () => Note | undefined;
   getFilteredNotes: () => Note[];
+  getGraphData: () => GraphData;
+  getNoteGraph: (noteId: string) => { node: GraphNode | undefined; edges: GraphEdge[] };
 }
 
 const MOCK_NOTES: Note[] = [
@@ -72,41 +76,58 @@ function noteToNoteFile(note: Note): NoteFile {
   };
 }
 
+function generateId(): string {
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, (c) => {
+    const r = (Math.random() * 16) | 0;
+    const v = c === 'x' ? r : (r & 0x3) | 0x8;
+    return v.toString(16);
+  });
+}
+
+const emptyGraphData: GraphData = { nodes: [], edges: [] };
+
 export const useNoteStore = create<NoteStore>((set, get) => ({
   notes: [],
   activeNoteId: null,
   searchQuery: '',
   isInitialized: false,
+  graphData: emptyGraphData,
 
   initFromFileSystem: async () => {
     try {
       await adapter.init();
       const files = await adapter.listNotes();
+      let notes: Note[];
       if (files.length > 0) {
-        set({ notes: files.map(noteFileToNote), isInitialized: true });
+        notes = files.map(noteFileToNote);
       } else {
         for (const mock of MOCK_NOTES) {
           await adapter.saveNote(noteToNoteFile(mock));
         }
-        set({ notes: MOCK_NOTES, isInitialized: true });
+        notes = MOCK_NOTES;
       }
-    } catch (e) {
+      const graphData = buildGraph(notes);
+      set({ notes, graphData, isInitialized: true });
+    } catch (e: unknown) {
       console.error('Failed to init from file system:', e);
-      set({ notes: MOCK_NOTES, isInitialized: true });
+      const graphData = buildGraph(MOCK_NOTES);
+      set({ notes: MOCK_NOTES, graphData, isInitialized: true });
     }
   },
 
   addNote: async (title: string) => {
     const now = Date.now();
     const note: Note = {
-      id: crypto.randomUUID(),
+      id: generateId(),
       title,
       content: `# ${title}\n\n`,
       createdAt: now,
       updatedAt: now,
     };
     await adapter.saveNote(noteToNoteFile(note));
-    set((state) => ({ notes: [note, ...state.notes] }));
+    const newNotes = [note, ...get().notes];
+    const graphData = buildGraph(newNotes);
+    set({ notes: newNotes, graphData });
   },
 
   updateNote: async (id: string, content: string) => {
@@ -118,19 +139,22 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
       updatedAt: Date.now(),
     };
     await adapter.saveNote(updated);
-    set((state) => ({
-      notes: state.notes.map((n) =>
-        n.id === id ? noteFileToNote(updated) : n
-      ),
-    }));
+    const newNotes = get().notes.map((n) =>
+      n.id === id ? noteFileToNote(updated) : n
+    );
+    const graphData = buildGraph(newNotes);
+    set({ notes: newNotes, graphData });
   },
 
   deleteNote: async (id: string) => {
     await adapter.deleteNote(id);
-    set((state) => ({
-      notes: state.notes.filter((n) => n.id !== id),
-      activeNoteId: state.activeNoteId === id ? null : state.activeNoteId,
-    }));
+    const newNotes = get().notes.filter((n: Note) => n.id !== id);
+    const graphData = buildGraph(newNotes);
+    set({
+      notes: newNotes,
+      graphData,
+      activeNoteId: get().activeNoteId === id ? null : get().activeNoteId,
+    });
   },
 
   setActiveNote: (id: string | null) => {
@@ -155,5 +179,24 @@ export const useNoteStore = create<NoteStore>((set, get) => ({
         n.title.toLowerCase().includes(q) ||
         n.content.toLowerCase().includes(q)
     );
+  },
+
+  getGraphData: () => {
+    return get().graphData;
+  },
+
+  getNoteGraph: (noteId: string) => {
+    const { graphData } = get();
+    const node = graphData.nodes.find((n) => n.id === noteId);
+    if (!node) {
+      return { node: undefined, edges: [] };
+    }
+
+    const nodeLower = node.title.toLowerCase();
+    const edges = graphData.edges.filter(
+      (e) => e.source === nodeLower || e.target === nodeLower
+    );
+
+    return { node, edges };
   },
 }));
