@@ -1,8 +1,15 @@
 import { create } from 'zustand';
 import { Platform } from 'react-native';
+import matter from 'gray-matter';
 import type { NoteFile } from '@/lib/fs';
 import { mobileAdapter, webAdapter } from '@/lib/fs';
 import { buildGraph, type GraphData, type GraphNode, type GraphEdge } from '@/lib/graph';
+
+// Polyfill Buffer for gray-matter on React Native
+import { Buffer } from 'buffer';
+if (typeof global.Buffer === 'undefined') {
+  global.Buffer = Buffer;
+}
 
 const adapter = Platform.OS === 'web' ? webAdapter : mobileAdapter;
 
@@ -12,6 +19,7 @@ export interface Note {
   content: string;
   createdAt: number;
   updatedAt: number;
+  tags?: string[];
 }
 
 interface NoteStore {
@@ -36,33 +44,54 @@ const MOCK_NOTES: Note[] = [
   {
     id: '1',
     title: 'Welcome',
-    content: '# Welcome to your notes\n\nThis is your first note. Start writing!\n\nCheck out [[Getting Started]] for more info.',
+    content: '---\ntags: [welcome, info]\n---\n# Welcome to your notes\n\nThis is your first note. Start writing!\n\nCheck out [[Getting Started]] for more info.',
     createdAt: Date.now() - 86400000,
     updatedAt: Date.now() - 86400000,
+    tags: ['welcome', 'info'],
   },
   {
     id: '2',
     title: 'Getting Started',
-    content: '# Getting Started\n\n- Create notes with [[wikilinks]]\n- View your [[Graph View]] to see connections\n- Use **markdown** for formatting',
+    content: '---\ntags: [getting-started]\n---\n# Getting Started\n\n- Create notes with [[wikilinks]]\n- View your [[Graph View]] to see connections\n- Use **markdown** for formatting',
     createdAt: Date.now() - 172800000,
     updatedAt: Date.now() - 172800000,
+    tags: ['getting-started'],
   },
   {
     id: '3',
     title: 'Ideas',
-    content: '# Ideas\n\nSome random ideas:\n\n1. Build a graph view\n2. Add search functionality\n3. Support tags in frontmatter',
+    content: '---\ntags: [ideas, todo]\n---\n# Ideas\n\nSome random ideas:\n\n1. Build a graph view\n2. Add search functionality\n3. Support tags in frontmatter',
     createdAt: Date.now() - 259200000,
     updatedAt: Date.now() - 259200000,
+    tags: ['ideas', 'todo'],
   },
 ];
 
+function extractMetadata(content: string): { tags: string[] } {
+  try {
+    const { data } = matter(content);
+    let tags: string[] = [];
+    if (Array.isArray(data.tags)) {
+      tags = data.tags.map(String);
+    } else if (typeof data.tags === 'string') {
+      tags = data.tags.split(',').map((t: string) => t.trim());
+    }
+    return { tags: tags.filter(Boolean) };
+  } catch (e) {
+    // If gray-matter fails (e.g. invalid frontmatter), return empty tags
+    return { tags: [] };
+  }
+}
+
 function noteFileToNote(file: NoteFile): Note {
+  const meta = extractMetadata(file.content);
   return {
     id: file.id,
     title: file.title,
     content: file.content,
     createdAt: file.createdAt,
     updatedAt: file.updatedAt,
+    tags: meta.tags,
   };
 }
 
@@ -73,6 +102,7 @@ function noteToNoteFile(note: Note): NoteFile {
     content: note.content,
     createdAt: note.createdAt,
     updatedAt: note.updatedAt,
+    tags: note.tags,
   };
 }
 

@@ -4,6 +4,7 @@ export interface NoteFile {
   content: string;
   createdAt: number;
   updatedAt: number;
+  tags?: string[];
 }
 
 export interface FileSystemAdapter {
