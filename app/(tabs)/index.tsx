@@ -1,19 +1,29 @@
-import { Text, View } from 'react-native';
+import { Text, View, Button, Input } from '@/components';
 
 export default function HomeScreen() {
   return (
-    <View className="flex-1 items-center justify-center bg-white dark:bg-neutral-900 px-6">
-      <View className="bg-sky-500/10 p-6 rounded-3xl items-center border border-sky-500/20">
-        <Text className="text-4xl font-black text-sky-600 mb-2">Home</Text>
-        <Text className="text-neutral-500 dark:text-neutral-400 text-center text-lg">
-          Welcome to your UniWind powered app.
-        </Text>
+    <View className="flex-1 p-8 pt-20 bg-background">
+      <View variant="centered" className="mb-12">
+        <Text variant="title" className="text-primary">UniWind UI</Text>
+        <Text variant="caption">Themed Design System</Text>
       </View>
       
-      <View className="mt-8 flex-row gap-3">
-        <View className="bg-sky-500 px-6 py-3 rounded-2xl shadow-lg shadow-sky-500/20">
-          <Text className="text-white font-bold text-lg">Getting Started</Text>
+      <View variant="card" className="mb-6">
+        <Text variant="subtitle">Standardized Form</Text>
+        <Input label="Email address" placeholder="jane@example.com" className="mt-4" />
+        <Input label="Password" placeholder="••••••••" secureTextEntry />
+        
+        <View className="flex-row gap-3 mt-4">
+          <Button label="Login" className="flex-1" />
+          <Button label="Cancel" variant="outline" className="flex-1" />
         </View>
+      </View>
+      
+      <View variant="card" className="border-l-4 border-primary">
+        <Text variant="bold" className="text-primary">Theme Variables</Text>
+        <Text variant="caption" className="mt-1">
+          Colors are now managed via CSS variables in global.css, allowing for effortless skinning of the entire app.
+        </Text>
       </View>
     </View>
   );
